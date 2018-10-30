@@ -1,0 +1,40 @@
+name:                project-euler
+version:             0.1.0.0
+github:              "cbeav/project-euler"
+license:             BSD3
+author:              "ChrisBeavers"
+maintainer:          "crbeavers@gmail.com"
+copyright:           "2018 Chris Beavers"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+description: Please see the README on GitHub at <https://github.com/cbeav/project-euler#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- classy-prelude
+- primes
+- arithmoi
+
+library:
+  source-dirs: src
+
+default-extensions:
+- NoImplicitPrelude
+- OverloadedStrings
+- RecordWildCards
+- DeriveGeneric
+- ScopedTypeVariables
+
+executables:
+  project-euler:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - project-euler
