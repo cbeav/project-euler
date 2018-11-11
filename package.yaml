@@ -17,6 +17,7 @@ dependencies:
 - classy-prelude
 - primes
 - arithmoi
+- text
 
 library:
   source-dirs: src

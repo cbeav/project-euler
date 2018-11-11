@@ -1,12 +1,29 @@
-module ProjectEuler where
+module ProjectEuler (runProblem) where
 
 import Prelude
 import Data.Char (digitToInt)
-import Data.List (intercalate)
+import Data.List (intercalate, maximumBy)
 import Data.Maybe
 import Data.Numbers.Primes
 import Math.NumberTheory.Powers.Squares
 import Unsafe.Coerce
+
+runProblem :: String -> IO ()
+runProblem problem = case problem of
+  "1" -> p1
+  "2" -> p2
+  "3" -> p3
+  "4" -> p4
+  "5" -> p5
+  "6" -> p6
+  "7" -> p7
+  "8" -> p8
+  "9" -> p9
+  "10" -> p10
+  "13" -> p13
+  "14" -> p14
+  "15" -> p15
+  p -> putStrLn $ "Unrecognized problem: " ++ p
 
 p1 :: IO ()
 p1 = print $ sum [x | x <- [1..999], x `mod` 3 == 0 || x `mod` 5 == 0]
@@ -56,3 +73,31 @@ p9 =
 
 p10 :: IO ()
 p10 = print . sum $ takeWhile (< 2000000) primes
+
+p13 :: IO ()
+p13 = do
+  nums <- map read . lines <$> readFile "resources/p13.txt"
+  print . take 10 . show $ sum nums
+
+collatz :: Integer -> Integer
+collatz n
+  | even n = floor (toRational n / 2)
+  | otherwise = 3 * n + 1
+
+collatzLength :: Integer -> Integer
+collatzLength 1 = 1
+collatzLength n = 1 + collatzLength (collatz n)
+
+p14 :: IO ()
+p14 =
+  print . maximumBy compVals $ map (\a -> (a, collatzLength a)) [1..999999]
+ where
+  compVals (_, v1) (_, v2) = compare v1 v2
+
+p15 :: IO ()
+p15 =
+  let
+    nextRow prevRow = zipWith (+) (0 : nextRow prevRow) prevRow
+    dpTable = take 21 (replicate 21 1 : map nextRow dpTable)
+  in
+    print . last $ last dpTable
