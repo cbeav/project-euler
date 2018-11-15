@@ -15,6 +15,7 @@ description: Please see the README on GitHub at <https://github.com/cbeav/projec
 dependencies:
 - base >= 4.7 && < 5
 - classy-prelude
+- containers
 - primes
 - arithmoi
 - text

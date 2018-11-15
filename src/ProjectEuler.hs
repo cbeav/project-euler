@@ -1,10 +1,13 @@
 module ProjectEuler (runProblem) where
 
 import Prelude
-import Data.Char (digitToInt)
-import Data.List (intercalate, maximumBy)
+import Data.Char (digitToInt, ord)
+import Data.List (intercalate, maximumBy, sort)
 import Data.Maybe
 import Data.Numbers.Primes
+import Data.Set (toList)
+import qualified Data.Text as T
+import Math.NumberTheory.ArithmeticFunctions
 import Math.NumberTheory.Powers.Squares
 import Unsafe.Coerce
 
@@ -23,6 +26,11 @@ runProblem problem = case problem of
   "13" -> p13
   "14" -> p14
   "15" -> p15
+  "16" -> p16
+  "17" -> p17
+  "20" -> p20
+  "21" -> p21
+  "22" -> p22
   p -> putStrLn $ "Unrecognized problem: " ++ p
 
 p1 :: IO ()
@@ -101,3 +109,61 @@ p15 =
     dpTable = take 21 (replicate 21 1 : map nextRow dpTable)
   in
     print . last $ last dpTable
+
+sumd :: Integer -> Integer -> Integer
+sumd 0 acc = acc
+sumd x acc = sumd (x `div` 10) (acc + (x `mod` 10))
+
+p16 :: IO ()
+p16 = print $ sumd (2 ^ 1000) 0
+
+writeNumber :: Integer -> String
+writeNumber n
+  | n == 0 = ""
+  | n == 1 = "one"
+  | n == 2 = "two"
+  | n == 3 = "three"
+  | n == 4 = "four"
+  | n == 5 = "five"
+  | n == 6 = "six"
+  | n == 7 = "seven"
+  | n == 8 = "eight"
+  | n == 9 = "nine"
+  | n == 10 = "ten"
+  | n == 11 = "eleven"
+  | n == 12 = "twelve"
+  | n == 13 = "thirteen"
+  | n `elem` [14, 16, 17, 19] = writeNumber (n `mod` 10) ++ "teen"
+  | n == 15 = "fifteen"
+  | n == 18 = "eighteen"
+  | n `elem` [20..29] = "twenty" ++ writeNumber (n `mod` 10)
+  | n `elem` [30..39] = "thirty" ++ writeNumber (n `mod` 10)
+  | n `elem` [40..49] = "forty" ++ writeNumber (n `mod` 10)
+  | n `elem` [50..59] = "fifty" ++ writeNumber (n `mod` 10)
+  | n `elem` [60..69] = "sixty" ++ writeNumber (n `mod` 10)
+  | n `elem` [70..79] = "seventy" ++ writeNumber (n `mod` 10)
+  | n `elem` [80..89] = "eighty" ++ writeNumber (n `mod` 10)
+  | n `elem` [90..99] = "ninety" ++ writeNumber (n `mod` 10)
+  | n == 1000 = "onethousand"
+  | mod n 100 == 0 = writeNumber (div n 100) ++ "hundred"
+  | otherwise = writeNumber (div n 100) ++ "hundredand" ++ writeNumber (mod n 100)
+
+p17 :: IO ()
+p17 = print . sum $ map (length . writeNumber) [1..1000]
+
+p20 :: IO ()
+p20 = print $ sumd (product [1..100]) 0
+
+p21 :: IO ()
+p21 =
+  print . sum $ filter isAmicable ([2..9999] :: [Int])
+ where
+  isAmicable n = n == sumDivisors (sumDivisors n) && sumDivisors n /= n
+  sumDivisors n = (\a -> a - n) . sum . toList $ divisors n
+
+p22 :: IO ()
+p22 = do
+  names <- map T.unpack . T.splitOn "," . T.pack . filter (/= '"') <$> readFile "resources/p22.txt"
+  print . sum $ zipWith (*) (map nameVal $ sort names) [1..]
+ where
+  nameVal = sum . map ((\a -> a - 64) . ord)
