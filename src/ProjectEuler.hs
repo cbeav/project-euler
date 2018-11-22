@@ -2,7 +2,8 @@ module ProjectEuler (runProblem) where
 
 import Prelude
 import Data.Char (digitToInt, ord)
-import Data.List (intercalate, maximumBy, sort)
+import Data.List (intercalate, maximumBy, permutations, sort)
+import Data.List.Extra (nubOrd)
 import Data.Maybe
 import Data.Numbers.Primes
 import Data.Set (toList)
@@ -31,6 +32,9 @@ runProblem problem = case problem of
   "20" -> p20
   "21" -> p21
   "22" -> p22
+  "23" -> p23
+  "24" -> p24
+  "25" -> p25
   p -> putStrLn $ "Unrecognized problem: " ++ p
 
 p1 :: IO ()
@@ -154,12 +158,15 @@ p17 = print . sum $ map (length . writeNumber) [1..1000]
 p20 :: IO ()
 p20 = print $ sumd (product [1..100]) 0
 
+sumDivisors :: Integer -> Integer
+sumDivisors n = (\a -> a - n) . sum . toList $ divisors n
+
+isAmicable :: Integer -> Bool
+isAmicable n = n == sumDivisors (sumDivisors n) && sumDivisors n /= n
+
 p21 :: IO ()
 p21 =
-  print . sum $ filter isAmicable ([2..9999] :: [Int])
- where
-  isAmicable n = n == sumDivisors (sumDivisors n) && sumDivisors n /= n
-  sumDivisors n = (\a -> a - n) . sum . toList $ divisors n
+  print . sum $ filter isAmicable [2..9999]
 
 p22 :: IO ()
 p22 = do
@@ -167,3 +174,20 @@ p22 = do
   print . sum $ zipWith (*) (map nameVal $ sort names) [1..]
  where
   nameVal = sum . map ((\a -> a - 64) . ord)
+
+isAbundant :: Integer -> Bool
+isAbundant n = n < sumDivisors n
+
+p23 :: IO ()
+p23 =
+  print . sum $ filter (not . (`elem` candidateSums)) [21822,21821..1]
+ where
+  candidateSums = sort $ nubOrd [x+y | x <- candidates, y <- candidates, x+y < 21823]
+  candidates = takeWhile (< 21823) abundants
+  abundants = filter isAbundant [12..]
+
+p24 :: IO ()
+p24 = print $ sort (permutations ['0'..'9']) !! 999999
+
+p25 :: IO ()
+p25 = print . (+2) . length $ takeWhile ((< 1000) . length . show) fibs
