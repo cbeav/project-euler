@@ -13,12 +13,13 @@ extra-source-files:
 description: Please see the README on GitHub at <https://github.com/cbeav/project-euler#readme>
 
 dependencies:
+- arithmoi
 - base >= 4.7 && < 5
 - classy-prelude
 - containers
 - extra
 - primes
-- arithmoi
+- time
 - text
 
 library:

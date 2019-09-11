@@ -1,15 +1,21 @@
 module ProjectEuler (runProblem) where
 
+import ClassyPrelude (foldl')
 import Prelude
-import Data.Char (digitToInt, ord)
+
+import Control.Monad (guard)
+import Data.Char (digitToInt, intToDigit, ord)
 import Data.List (intercalate, maximumBy, permutations, sort)
 import Data.List.Extra (nubOrd)
 import Data.Maybe
 import Data.Numbers.Primes
 import Data.Set (toList)
+import Data.Time.Calendar
+import Data.Time.Calendar.WeekDate
 import qualified Data.Text as T
 import Math.NumberTheory.ArithmeticFunctions
 import Math.NumberTheory.Powers.Squares
+import Numeric (showIntAtBase)
 import Unsafe.Coerce
 
 runProblem :: String -> IO ()
@@ -29,12 +35,17 @@ runProblem problem = case problem of
   "15" -> p15
   "16" -> p16
   "17" -> p17
+  "19" -> p19
   "20" -> p20
   "21" -> p21
   "22" -> p22
   "23" -> p23
   "24" -> p24
   "25" -> p25
+  "34" -> p34
+  "35" -> p35
+  "36" -> p36
+  "48" -> p48
   p -> putStrLn $ "Unrecognized problem: " ++ p
 
 p1 :: IO ()
@@ -49,7 +60,7 @@ p2 = print . sum . takeWhile (< 4000000) $ filter even fibs
 p3 :: IO ()
 p3 = print . maximum $ primeFactors (600851475143 :: Integer)
 
-isPalindrome :: Integer -> Bool
+isPalindrome :: Show a => a -> Bool
 isPalindrome i = show i == reverse (show i)
 
 p4 :: IO()
@@ -155,6 +166,19 @@ writeNumber n
 p17 :: IO ()
 p17 = print . sum $ map (length . writeNumber) [1..1000]
 
+p19 :: IO ()
+p19 = do
+  let
+    days = do
+      year  <- [1901..2000]
+      month <- [1..12]
+      let
+        day = fromGregorian year month 1
+        (_, _, dow) = toWeekDate day
+      guard (dow == 7)
+      pure day
+  print $ length days
+
 p20 :: IO ()
 p20 = print $ sumd (product [1..100]) 0
 
@@ -191,3 +215,35 @@ p24 = print $ sort (permutations ['0'..'9']) !! 999999
 
 p25 :: IO ()
 p25 = print . (+2) . length $ takeWhile ((< 1000) . length . show) fibs
+
+p34 :: IO ()
+p34 = do
+  let
+    facs = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+    nums = [100..362880]
+    isDigFacs n = (== n) . sum . map ((facs !!) . digitToInt) $ show n
+  print . sum $ filter isDigFacs nums
+
+p35 :: IO ()
+p35 =
+  let
+    isCircular = all isPrime . rotations
+    rotate p n = r * 10 + q
+      where (q, r) = n `quotRem` p
+    rotations 0 = [0]
+    rotations n = take (d + 1) (iterate (rotate (10^d)) n)
+      where d = floor (logBase 10 (fromInteger n))
+    ps = filter isCircular $ takeWhile (< 1000000) primes
+  in print $ length ps
+
+p36 :: IO ()
+p36 = do
+  let nums = [1..1000000]
+  print . sum $ filter (\n -> isPalindrome n && isPalindrome (showIntAtBase 2 intToDigit n "")) [1..1000000]
+
+p48 :: IO ()
+p48 = do
+  let
+    last10 = (`mod` 10000000000)
+    nToN n = foldl' (\a b -> last10 $ a * b) 1 $ replicate n n
+  print . last10 . sum $ map (last10 . nToN) [1..1000]
